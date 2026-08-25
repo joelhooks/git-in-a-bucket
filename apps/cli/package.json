@@ -1,0 +1,29 @@
+{
+  "name": "@git-in-a-bucket/cli",
+  "version": "0.1.0",
+  "private": true,
+  "bin": {
+    "git-in-a-bucket": "./bin/git-in-a-bucket"
+  },
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run",
+    "build": "tsc -p tsconfig.build.json",
+    "cli": "pnpm run --silent build && node dist/cli.js",
+    "check": "pnpm run typecheck",
+    "pretest": "pnpm run --silent build",
+    "prepublishOnly": "pnpm run build"
+  },
+  "dependencies": {
+    "@effect/platform-node": "4.0.0-rc.110",
+    "@git-in-a-bucket/core": "workspace:*",
+    "effect": "4.0.0-rc.110",
+    "xstate": "5.32.5"
+  },
+  "devDependencies": {
+    "@types/node": "24.13.3",
+    "typescript": "7.0.2",
+    "vitest": "4.1.10"
+  }
+}

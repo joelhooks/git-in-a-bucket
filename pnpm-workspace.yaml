@@ -1,0 +1,11 @@
+packages:
+  - "apps/*"
+  - "packages/*"
+
+allowBuilds:
+  "@google/genai": true
+  workerd: true
+  esbuild: true
+  lefthook: true
+  msgpackr-extract: true
+  protobufjs: true

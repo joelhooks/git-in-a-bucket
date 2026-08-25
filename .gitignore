@@ -1,0 +1,20 @@
+node_modules/
+dist/
+.turbo/
+coverage/
+.pi/notes-bridge/
+# pi-notes regenerates this default on startup; canonical Brain procedures
+# live in .pi/APPEND_SYSTEM.md
+BRAIN.md
+
+# Shallow source mirrors (populate via ./scripts/vendor-agent-sources.sh)
+.agent_sources/github.com/
+.agent-sources/
+
+.pi-subagents/
+*.log
+.DS_Store
+
+# operator config + alchemy state
+.env
+.alchemy/

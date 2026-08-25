@@ -1,0 +1,49 @@
+{
+  "name": "git-in-a-bucket",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A strict, batteries-included TypeScript CLI template for Node.js.",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "prepare": "lefthook install",
+    "build": "turbo run build",
+    "check": "turbo run typecheck && ultracite check && oxfmt --check .",
+    "cli": "turbo run build --filter=@git-in-a-bucket/cli && node apps/cli/dist/cli.js",
+    "fix": "ultracite fix && oxfmt .",
+    "format": "oxfmt",
+    "format:check": "oxfmt --check",
+    "test": "turbo run test",
+    "typecheck": "turbo run typecheck",
+    "vendor:agent-sources": "./scripts/vendor-agent-sources.sh"
+  },
+  "devDependencies": {
+    "@earendil-works/pi-coding-agent": "0.80.9",
+    "@types/node": "24.13.3",
+    "lefthook": "2.1.10",
+    "oxfmt": "0.59.0",
+    "oxlint": "1.74.0",
+    "oxlint-tsgolint": "0.24.0",
+    "turbo": "2.10.5",
+    "typescript": "7.0.2",
+    "ultracite": "7.9.4",
+    "vitest": "4.1.10"
+  },
+  "devEngines": {
+    "packageManager": {
+      "name": "pnpm",
+      "version": "11.3.0",
+      "onFail": "error"
+    },
+    "runtime": {
+      "name": "node",
+      "version": ">=24.18.0",
+      "onFail": "warn"
+    }
+  },
+  "engines": {
+    "node": ">=24.18.0",
+    "pnpm": ">=11.1.2"
+  },
+  "packageManager": "pnpm@11.3.0"
+}
