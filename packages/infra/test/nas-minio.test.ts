@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { attrsOf, convergeScript, stopScript } from "../src/nas-minio.ts";
+import {
+  attrsOf,
+  convergeScript,
+  startScript,
+  stopScript,
+} from "../src/nas-minio.ts";
 
 const props = {
   baseDir: "/volume1/example/walgit-demo",
@@ -16,6 +21,29 @@ describe("convergeScript", () => {
   it("refuses to run without an operator-owned env file", () => {
     expect(script).toContain("MISSING_ENV_FILE");
     expect(script).toContain(`[ -f ${props.baseDir}/minio.env ]`);
+  });
+
+  it("never writes credentials", () => {
+    expect(script).not.toContain("MINIO_ROOT_USER=");
+    expect(script).not.toContain("MINIO_ROOT_PASSWORD=");
+  });
+
+  it("installs the start script through a quoted heredoc", () => {
+    expect(script).toContain("<<'GIAB_START'");
+    expect(script).toContain(startScript(props));
+  });
+
+  it("ends by running the installed start script", () => {
+    const lastLine = script.split("\n").at(-1);
+    expect(lastLine).toBe(`sh ${props.baseDir}/bin/start-minio.sh`);
+  });
+});
+
+describe("startScript", () => {
+  const script = startScript(props);
+
+  it("refuses to run without an operator-owned env file", () => {
+    expect(script).toContain("MISSING_ENV_FILE");
   });
 
   it("never writes credentials", () => {

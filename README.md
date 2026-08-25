@@ -29,6 +29,16 @@ pnpm exec alchemy deploy r2.run.ts  # act 2: R2 (needs `alchemy login`)
 
 Credentials never live in this repo or in alchemy state: `minio.env` on the NAS is created by hand and the provider only checks that it exists.
 
+## Survive a NAS reboot
+
+The deploy installs an idempotent `bin/start-minio.sh` on the NAS. Wiring it to boot needs root once — the provider never runs as root, the same stance it takes on credentials. On a Synology, copy `packages/infra/assets/install-boot-hook.sh` to the NAS and run:
+
+```bash
+sudo sh install-boot-hook.sh /path/to/walgit-demo <run-as-user>
+```
+
+That writes `/usr/local/etc/rc.d/S99walgit-demo.sh` (DSM preserves that directory across updates), which waits for the volume at boot and runs the start script as the named user. Boot log: `/var/log/walgit-demo-boot.log`.
+
 ## Provenance
 
 Scaffolded from [ts-cli-template](https://github.com/joelhooks/ts-cli-template). walgit built from source; MinIO runs as a plain static binary on the NAS — no Docker required.

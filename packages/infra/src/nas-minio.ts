@@ -94,18 +94,17 @@ export const attrsOf = (
   version,
 });
 
-/** Idempotent converge script. Credentials are operator-owned: the resource
- * requires `minio.env` to already exist on the NAS and never reads, writes,
- * or stores its contents — so no secret ever lands in alchemy state. */
-export const convergeScript = (props: NasMinioProps) => {
+/** Standalone idempotent start script, installed at `bin/start-minio.sh` on
+ * the NAS. The boot hook (`assets/install-boot-hook.sh`) runs it at NAS boot,
+ * and converge runs it on deploy — boot and deploy share one start path.
+ * Always ends with a health probe that prints the HTTP status code. */
+export const startScript = (props: NasMinioProps) => {
   const base = props.baseDir;
-  const url = props.downloadUrl ?? DEFAULT_DOWNLOAD_URL;
   return [
+    "#!/bin/sh",
     "set -e",
-    `mkdir -p ${base}/bin ${base}/data ${base}/logs`,
-    `[ -x ${base}/bin/minio ] || { curl -fSsLo ${base}/bin/minio ${url} && chmod +x ${base}/bin/minio; }`,
-    `[ -f ${base}/minio.env ] || { echo "MISSING_ENV_FILE" >&2; exit 42; }`,
     `if ! curl -s -m 3 -o /dev/null http://localhost:${props.s3Port}/minio/health/live; then`,
+    `  [ -f ${base}/minio.env ] || { echo "MISSING_ENV_FILE" >&2; exit 42; }`,
     `  cd ${base}`,
     "  set -a; . ./minio.env; set +a",
     `  nohup ./bin/minio server ./data --address :${props.s3Port} --console-address :${props.consolePort} >> logs/minio.log 2>&1 &`,
@@ -116,6 +115,26 @@ export const convergeScript = (props: NasMinioProps) => {
     "  done",
     "fi",
     `curl -s -m 3 -o /dev/null -w '%{http_code}' http://localhost:${props.s3Port}/minio/health/live`,
+  ].join("\n");
+};
+
+/** Idempotent converge script. Credentials are operator-owned: the resource
+ * requires `minio.env` to already exist on the NAS and never reads, writes,
+ * or stores its contents — so no secret ever lands in alchemy state.
+ * The quoted heredoc keeps `$!` and friends literal until boot time. */
+export const convergeScript = (props: NasMinioProps) => {
+  const base = props.baseDir;
+  const url = props.downloadUrl ?? DEFAULT_DOWNLOAD_URL;
+  return [
+    "set -e",
+    `mkdir -p ${base}/bin ${base}/data ${base}/logs`,
+    `[ -x ${base}/bin/minio ] || { curl -fSsLo ${base}/bin/minio ${url} && chmod +x ${base}/bin/minio; }`,
+    `[ -f ${base}/minio.env ] || { echo "MISSING_ENV_FILE" >&2; exit 42; }`,
+    `cat > ${base}/bin/start-minio.sh <<'GIAB_START'`,
+    startScript(props),
+    "GIAB_START",
+    `chmod +x ${base}/bin/start-minio.sh`,
+    `sh ${base}/bin/start-minio.sh`,
   ].join("\n");
 };
 
