@@ -1,0 +1,63 @@
+# Act 3: Depot CI — content plan
+
+Status: planned. Acts 1–2 run; act 3 is unwired. Captured 2026-08-26.
+
+## The idea
+
+This rig becomes a free deep-dive for Joel's channel: "we built our own GitHub."
+Not an ad. The piece explains Depot in depth by using it, not by reading its
+homepage. It also serves as a reference for what a deep product explanation
+looks like, for anyone briefing creators on CI/CD products.
+
+## Narrative arc
+
+- **Cold open** — the 2026-08-17 GitHub outage: ~7.5 hours, PRs, Actions, and
+  webhooks down. Pushes worked; nobody could review, merge, or deploy.
+  (Also 2026-08-06: Actions degraded fleet-wide.) `needs_source` links in the
+  script draft before recording.
+- **Act 1 (runs)** — the forge is a binary and a bucket. walgit + MinIO on a
+  NAS, converged by the `NasMinio` alchemy provider.
+- **Act 2 (runs)** — the bucket is fungible. Same walgit config pointed at
+  Cloudflare R2. Zero egress, conditional writes, nothing else changes.
+- **Act 3 (planned)** — the part we refuse to build: CI. walgit's per-repo
+  webhooks fire Depot CI. Forge you own, bucket you rent, CI you don't build.
+
+## Why Depot fits the story
+
+- Depot CI is its own engine with its own control plane — the decoupling
+  answer to "okay, but Actions?" that acts 1–2 set up.
+- `depot build` works with no forge in the loop at all: the escape-hatch demo
+  (CI host down, build locally, ship anyway).
+- Per-second billing ($0.0001/s, no one-minute minimum) is a demo-able claim.
+- Fresh surface, 2026: Depot CI GA'd in March; remote agent sandboxes and a
+  Sandbox SDK exist. The agent angle stacks on top if wanted.
+
+## Honesty rails
+
+- Depot-hosted GitHub Actions runners do NOT survive a GitHub Actions outage —
+  they take jobs from GitHub's control plane. Only Depot CI, local
+  `depot build`, and sandboxes are decoupled. Never blur this on camera.
+- The claim is decoupling, not invincibility: Depot published its own
+  us-east-1 postmortem. "Never goes down" is a liability, not a pitch.
+- Reproduce any speed number in this rig before repeating it. A measured 11x
+  beats a quoted "up to 40x."
+
+## Gating spike (do first)
+
+Wire walgit webhook → Depot CI and get one push-to-build-receipt round trip.
+Unverified (`needs_source`): whether Depot CI accepts arbitrary external
+webhook/API triggers cleanly, and what the auth handshake looks like.
+Until this round-trips, the piece has two acts and a promise.
+
+## Recording boundary
+
+Operator topology stays out of frame the same way it stays out of this repo
+(see VISION.md boundaries). Lead on-camera with the R2 act, or record the NAS
+act with paths and hosts generalized. Decide before recording, not in the edit.
+
+## Format
+
+One long-form deep dive. Build-in-public posts fall out of wiring act 3 and
+test the framing before the video does. Audience comments on the free piece
+are angle research: what gets pushed back on, what gets clipped, where people
+ask "what's Depot?"
